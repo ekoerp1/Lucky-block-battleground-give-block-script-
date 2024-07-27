@@ -187,15 +187,14 @@ local function toggleMode()
                 button.TextColor3 = Color3.fromRGB(0, 0, 0) -- Black text color
             end
         end
-
-        darkMode = false
     else
-                -- Switch to Dark Mode
+        -- Switch to Dark Mode
         frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
         titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for title
         titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+
         buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background for buttons
-        modeToggleButton.Text = "🌕" -- Sun icon for light mode
+        modeToggleButton.Text = "🌞" -- Sun icon for light mode
         collapseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Dark gray button background
         collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
 
@@ -206,37 +205,56 @@ local function toggleMode()
                 button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
             end
         end
-
-        darkMode = true
     end
+    darkMode = not darkMode
 end
 
 modeToggleButton.MouseButton1Click:Connect(toggleMode)
 
--- Drag functionality for the frame
-local dragging = false
-local dragInput, dragStart, startPos
+-- Draggable functionality for desktop and mobile
+local function makeDraggable(gui)
+    local dragging = false
+    local dragInput, dragStart, startPos
 
-local function update(input)
-    local delta = input.Position - dragStart
-    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragInput = input
+            dragStart = input.Position
+            startPos = gui.Position
+        end
+    end)
+
+    gui.InputChanged:Connect(function(input)
+        if dragging and (input == dragInput) then
+            updateInput(input)
+        end
+    end)
+
+    gui.InputEnded:Connect(function(input)
+        if (input == dragInput) then
+            dragging = false
+        end
+    end)
 end
 
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
+-- Create an invisible frame around the GUI for dragging
+local dragFrame = Instance.new("Frame")
+dragFrame.Size = UDim2.new(1, 6, 1, 6) -- 3 pixels on each side
+dragFrame.Position = UDim2.new(0, -3, 0, -3) -- Offset by 3 pixels in each direction
+dragFrame.BackgroundTransparency = 1
+dragFrame.Parent = frame
 
-frame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-        update(input)
-    end
-end)
+makeDraggable(frame)
+
+-- Final adjustments
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Center the frame on the screen
+
+-- Initial setup for mode toggle
+toggleMode() -- Ensure the mode is set correctly on creation
