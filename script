@@ -1,0 +1,180 @@
+-- StarterPlayerScript
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
+-- Create the ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LuckyBlockGui"
+screenGui.Parent = playerGui
+
+-- Create a Frame to hold the buttons and title
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.3, 0, 0.5, 0)
+frame.Position = UDim2.new(0.35, 0, 0.25, 0)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.ClipsDescendants = true
+frame.Parent = screenGui
+
+-- Create a title label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.Text = "Lucky Block Giver"
+titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+titleLabel.TextScaled = true
+titleLabel.Parent = frame
+
+-- Create a collapse button
+local collapseButton = Instance.new("TextButton")
+collapseButton.Size = UDim2.new(0, 30, 0, 30)
+collapseButton.Position = UDim2.new(1, -30, 0, 0)
+collapseButton.Text = "-"
+collapseButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+collapseButton.Parent = frame
+
+-- Create a Frame to hold the buttons
+local buttonFrame = Instance.new("Frame")
+buttonFrame.Size = UDim2.new(1, 0, 1, -30) -- Adjust to fit below the title bar
+buttonFrame.Position = UDim2.new(0, 0, 0, 30)
+buttonFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+buttonFrame.ClipsDescendants = true
+buttonFrame.Parent = frame
+
+-- Create a UIListLayout to organize the buttons
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 5)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = buttonFrame
+
+-- Create a ScrollingFrame for the buttons
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Adjust to fit all buttons
+scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.Parent = buttonFrame
+
+-- Move UIListLayout to ScrollingFrame
+layout.Parent = scrollingFrame
+
+-- Function to create buttons
+local function createButton(name, scriptFunction)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 50) -- Adjust size for compact layout
+    button.Position = UDim2.new(0, 5, 0, 5) -- Add padding
+    button.Text = name
+    button.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    button.Parent = scrollingFrame
+    
+    -- Add button click functionality
+    button.MouseButton1Click:Connect(function()
+        scriptFunction()
+    end)
+end
+
+-- Normal Block script function
+local function normalBlockScript()
+    local spawnLuckyBlockEvent = ReplicatedStorage:WaitForChild("SpawnLuckyBlock")
+
+    -- Function to trigger the SpawnLuckyBlock event
+    local function triggerSpawnLuckyBlock()
+        spawnLuckyBlockEvent:FireServer()
+    end
+
+    -- Trigger the event
+    triggerSpawnLuckyBlock()
+end
+
+-- Super Block script function
+local function superBlockScript()
+    local spawnSuperBlockEvent = ReplicatedStorage:WaitForChild("SpawnSuperBlock")
+
+    -- Trigger the SpawnSuperBlock event
+    spawnSuperBlockEvent:FireServer()
+end
+
+-- Diamond Block script function
+local function diamondBlockScript()
+    local spawnDiamondBlockEvent = ReplicatedStorage:WaitForChild("SpawnDiamondBlock")
+
+    -- Trigger the SpawnDiamondBlock event
+    spawnDiamondBlockEvent:FireServer()
+end
+
+-- Rainbow Block script function
+local function rainbowBlockScript()
+    local spawnRainbowBlockEvent = ReplicatedStorage:WaitForChild("SpawnRainbowBlock")
+
+    -- Trigger the SpawnRainbowBlock event
+    spawnRainbowBlockEvent:FireServer()
+end
+
+-- Galaxy Block script function
+local function galaxyBlockScript()
+    local spawnGalaxyBlockEvent = ReplicatedStorage:WaitForChild("SpawnGalaxyBlock")
+
+    -- Trigger the SpawnGalaxyBlock event
+    spawnGalaxyBlockEvent:FireServer()
+end
+
+-- Add buttons for each lucky block
+createButton("Normal Block", normalBlockScript)
+createButton("Super Block", superBlockScript)
+createButton("Diamond Block", diamondBlockScript)
+createButton("Rainbow Block", rainbowBlockScript)
+createButton("Galaxy Block", galaxyBlockScript)
+
+-- Collapse functionality
+local collapsed = false
+
+local function collapse()
+    if collapsed then
+        frame.Size = UDim2.new(0.3, 0, 0.5, 0)
+        titleLabel.Visible = true
+        buttonFrame.Visible = true
+        collapseButton.Text = "-"
+    else
+        frame.Size = UDim2.new(0.3, 0, 0, 30) -- Collapse to only show the title and collapse button
+        titleLabel.Visible = false
+        buttonFrame.Visible = false
+        collapseButton.Text = "+"
+    end
+    collapsed = not collapsed
+end
+
+collapseButton.MouseButton1Click:Connect(collapse)
+
+-- Dragging functionality
+local dragInput, dragStart, startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+local function onInputBegan(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+        dragStart = input.Position
+        startPos = frame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragInput = nil
+            end
+        end)
+    end
+end
+
+local function onInputChanged(input)
+    if input == dragInput then
+        update(input)
+    end
+end
+
+frame.InputBegan:Connect(onInputBegan)
+UserInputService.InputChanged:Connect(onInputChanged)
