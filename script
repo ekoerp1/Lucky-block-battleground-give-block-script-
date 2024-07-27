@@ -25,16 +25,16 @@ screenGui.Parent = playerGui
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0.3, 0, 0.5, 0)
 frame.Position = UDim2.new(0.35, 0, 0.25, 0)
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background (default dark mode)
 frame.ClipsDescendants = true
 frame.Parent = screenGui
 
 -- Create a title label
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -40, 0, 30) -- Adjust size to make room for the collapse button
+titleLabel.Size = UDim2.new(1, -60, 0, 30) -- Adjust size to make room for the collapse and mode buttons
 titleLabel.Position = UDim2.new(0, 0, 0, 0)
 titleLabel.Text = "Lucky Block Giver"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color (default dark mode)
 titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for the title bar
 titleLabel.TextScaled = true
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
@@ -49,11 +49,20 @@ collapseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Dark gray but
 collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
 collapseButton.Parent = frame
 
+-- Create a mode toggle button
+local modeToggleButton = Instance.new("TextButton")
+modeToggleButton.Size = UDim2.new(0, 30, 0, 30)
+modeToggleButton.Position = UDim2.new(1, -60, 0, 0)
+modeToggleButton.Text = "🌙" -- Moon icon for dark mode
+modeToggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Dark gray button background
+modeToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+modeToggleButton.Parent = frame
+
 -- Create a Frame to hold the buttons
 local buttonFrame = Instance.new("Frame")
 buttonFrame.Size = UDim2.new(1, 0, 1, -30) -- Adjust to fit below the title bar
 buttonFrame.Position = UDim2.new(0, 0, 0, 30)
-buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background (default dark mode)
 buttonFrame.ClipsDescendants = true
 buttonFrame.Parent = frame
 
@@ -80,7 +89,7 @@ local function createButton(name, scriptFunction)
     button.Size = UDim2.new(1, -10, 0, 50) -- Adjust size for compact layout
     button.Position = UDim2.new(0, 5, 0, 5) -- Add padding
     button.Text = name
-    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray button background
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray button background (default dark mode)
     button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
     button.Parent = scrollingFrame
     
@@ -157,6 +166,53 @@ end
 
 collapseButton.MouseButton1Click:Connect(collapse)
 
+-- Dark and Light mode toggle functionality
+local darkMode = true
+
+local function toggleMode()
+    if darkMode then
+        -- Switch to Light Mode
+        frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background
+        titleLabel.BackgroundColor3 = Color3.fromRGB(200, 200, 200) -- Light gray background for title
+        titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0) -- Black text color
+        buttonFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background for buttons
+        modeToggleButton.Text = "🌙" -- Moon icon for dark mode
+        collapseButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200) -- Light gray button background
+        collapseButton.TextColor3 = Color3.fromRGB(0, 0, 0) -- Black text color
+
+        -- Update button colors in light mode
+        for _, button in ipairs(scrollingFrame:GetChildren()) do
+            if button:IsA("TextButton") then
+                button.BackgroundColor3 = Color3.fromRGB(200, 200, 200) -- Light gray button background
+                button.TextColor3 = Color3.fromRGB(0, 0, 0) -- Black text color
+            end
+        end
+
+        darkMode = false
+    else
+        -- Switch to Dark Mode
+        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+                titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for title
+        titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+        buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background for buttons
+        modeToggleButton.Text = "🌕" -- Sun icon for light mode
+        collapseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Dark gray button background
+        collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+
+        -- Update button colors in dark mode
+        for _, button in ipairs(scrollingFrame:GetChildren()) do
+            if button:IsA("TextButton") then
+                button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray button background
+                button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+            end
+        end
+
+        darkMode = true
+    end
+end
+
+modeToggleButton.MouseButton1Click:Connect(toggleMode)
+
 -- Dragging functionality
 local dragInput, dragStart, startPos
 
@@ -170,7 +226,8 @@ local function onInputBegan(input)
         dragInput = input
         dragStart = input.Position
         startPos = frame.Position
-        
+
+        -- Connect update function to input
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragInput = nil
@@ -185,5 +242,6 @@ local function onInputChanged(input)
     end
 end
 
-frame.InputBegan:Connect(onInputBegan)
+-- Connect input events for dragging
+UserInputService.InputBegan:Connect(onInputBegan)
 UserInputService.InputChanged:Connect(onInputChanged)
