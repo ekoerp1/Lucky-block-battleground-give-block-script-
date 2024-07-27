@@ -25,18 +25,19 @@ screenGui.Parent = playerGui
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0.3, 0, 0.5, 0)
 frame.Position = UDim2.new(0.35, 0, 0.25, 0)
-frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
 frame.ClipsDescendants = true
 frame.Parent = screenGui
 
 -- Create a title label
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Size = UDim2.new(1, -40, 0, 30) -- Adjust size to make room for the collapse button
 titleLabel.Position = UDim2.new(0, 0, 0, 0)
 titleLabel.Text = "Lucky Block Giver"
-titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-titleLabel.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for the title bar
 titleLabel.TextScaled = true
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
 titleLabel.Parent = frame
 
 -- Create a collapse button
@@ -44,14 +45,15 @@ local collapseButton = Instance.new("TextButton")
 collapseButton.Size = UDim2.new(0, 30, 0, 30)
 collapseButton.Position = UDim2.new(1, -30, 0, 0)
 collapseButton.Text = "-"
-collapseButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+collapseButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100) -- Dark gray button background
+collapseButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
 collapseButton.Parent = frame
 
 -- Create a Frame to hold the buttons
 local buttonFrame = Instance.new("Frame")
 buttonFrame.Size = UDim2.new(1, 0, 1, -30) -- Adjust to fit below the title bar
 buttonFrame.Position = UDim2.new(0, 0, 0, 30)
-buttonFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
 buttonFrame.ClipsDescendants = true
 buttonFrame.Parent = frame
 
@@ -78,7 +80,8 @@ local function createButton(name, scriptFunction)
     button.Size = UDim2.new(1, -10, 0, 50) -- Adjust size for compact layout
     button.Position = UDim2.new(0, 5, 0, 5) -- Add padding
     button.Text = name
-    button.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray button background
+    button.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
     button.Parent = scrollingFrame
     
     -- Add button click functionality
@@ -87,48 +90,29 @@ local function createButton(name, scriptFunction)
     end)
 end
 
--- Normal Block script function
+-- Define script functions for each block type
 local function normalBlockScript()
     local spawnLuckyBlockEvent = ReplicatedStorage:WaitForChild("SpawnLuckyBlock")
-
-    -- Function to trigger the SpawnLuckyBlock event
-    local function triggerSpawnLuckyBlock()
-        spawnLuckyBlockEvent:FireServer()
-    end
-
-    -- Trigger the event
-    triggerSpawnLuckyBlock()
+    spawnLuckyBlockEvent:FireServer()
 end
 
--- Super Block script function
 local function superBlockScript()
     local spawnSuperBlockEvent = ReplicatedStorage:WaitForChild("SpawnSuperBlock")
-
-    -- Trigger the SpawnSuperBlock event
     spawnSuperBlockEvent:FireServer()
 end
 
--- Diamond Block script function
 local function diamondBlockScript()
     local spawnDiamondBlockEvent = ReplicatedStorage:WaitForChild("SpawnDiamondBlock")
-
-    -- Trigger the SpawnDiamondBlock event
     spawnDiamondBlockEvent:FireServer()
 end
 
--- Rainbow Block script function
 local function rainbowBlockScript()
     local spawnRainbowBlockEvent = ReplicatedStorage:WaitForChild("SpawnRainbowBlock")
-
-    -- Trigger the SpawnRainbowBlock event
     spawnRainbowBlockEvent:FireServer()
 end
 
--- Galaxy Block script function
 local function galaxyBlockScript()
     local spawnGalaxyBlockEvent = ReplicatedStorage:WaitForChild("SpawnGalaxyBlock")
-
-    -- Trigger the SpawnGalaxyBlock event
     spawnGalaxyBlockEvent:FireServer()
 end
 
@@ -139,6 +123,18 @@ createButton("Diamond Block", diamondBlockScript)
 createButton("Rainbow Block", rainbowBlockScript)
 createButton("Galaxy Block", galaxyBlockScript)
 
+-- Add a collapsed text label
+local collapsedLabel = Instance.new("TextLabel")
+collapsedLabel.Size = UDim2.new(1, 0, 1, 0)
+collapsedLabel.Position = UDim2.new(0, 0, 0, 0)
+collapsedLabel.Text = "Collapsed"
+collapsedLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+collapsedLabel.BackgroundTransparency = 1
+collapsedLabel.TextScaled = true
+collapsedLabel.TextStrokeTransparency = 0.5 -- Optional: add a text stroke for better visibility
+collapsedLabel.Parent = frame
+collapsedLabel.Visible = false -- Initially hidden
+
 -- Collapse functionality
 local collapsed = false
 
@@ -147,11 +143,13 @@ local function collapse()
         frame.Size = UDim2.new(0.3, 0, 0.5, 0)
         titleLabel.Visible = true
         buttonFrame.Visible = true
+        collapsedLabel.Visible = false
         collapseButton.Text = "-"
     else
         frame.Size = UDim2.new(0.3, 0, 0, 30) -- Collapse to only show the title and collapse button
         titleLabel.Visible = false
         buttonFrame.Visible = false
+        collapsedLabel.Visible = true
         collapseButton.Text = "+"
     end
     collapsed = not collapsed
