@@ -132,7 +132,7 @@ createButton("Diamond Block", diamondBlockScript)
 createButton("Rainbow Block", rainbowBlockScript)
 createButton("Galaxy Block", galaxyBlockScript)
 
--- Add a collapsed text label
+-- Create a collapsed text label
 local collapsedLabel = Instance.new("TextLabel")
 collapsedLabel.Size = UDim2.new(1, 0, 1, 0)
 collapsedLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -190,7 +190,9 @@ local function toggleMode()
 
         darkMode = false
     else
-                titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for title
+                -- Switch to Dark Mode
+        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+        titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for title
         titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
         buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background for buttons
         modeToggleButton.Text = "🌕" -- Sun icon for light mode
@@ -211,7 +213,8 @@ end
 
 modeToggleButton.MouseButton1Click:Connect(toggleMode)
 
--- Dragging functionality
+-- Drag functionality for the frame
+local dragging = false
 local dragInput, dragStart, startPos
 
 local function update(input)
@@ -219,29 +222,21 @@ local function update(input)
     frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
-local function onInputBegan(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        if input.Target == frame or frame:IsAncestorOf(input.Target) then
-            dragInput = input
-            dragStart = input.Position
-            startPos = frame.Position
-
-            -- Connect update function to input
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragInput = nil
-                end
-            end)
-        end
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
     end
-end
+end)
 
-local function onInputChanged(input)
-    if input == dragInput then
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
         update(input)
     end
-end
-
--- Connect input events for dragging
-UserInputService.InputBegan:Connect(onInputBegan)
-UserInputService.InputChanged:Connect(onInputChanged)
+end)
