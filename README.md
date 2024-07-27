@@ -4,4 +4,4 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ekoerp1/Lucky-block-b
 
 I made this in like 40 seconds ill try to update it long term to look better but it works rn
 
-Also void block is just 3 galixy and 2 rainbow blocks so I didnt add it
+Also void block is just 3 galaxy and 2 rainbow blocks so I didnt add it
