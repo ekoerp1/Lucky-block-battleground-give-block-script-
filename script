@@ -190,8 +190,6 @@ local function toggleMode()
 
         darkMode = false
     else
-        -- Switch to Dark Mode
-        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
                 titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background for title
         titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
         buttonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background for buttons
@@ -223,16 +221,18 @@ end
 
 local function onInputBegan(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-        dragStart = input.Position
-        startPos = frame.Position
+        if input.Target == frame or frame:IsAncestorOf(input.Target) then
+            dragInput = input
+            dragStart = input.Position
+            startPos = frame.Position
 
-        -- Connect update function to input
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragInput = nil
-            end
-        end)
+            -- Connect update function to input
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragInput = nil
+                end
+            end)
+        end
     end
 end
 
