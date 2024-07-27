@@ -5,6 +5,17 @@ local playerGui = player:WaitForChild("PlayerGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
+-- Function to clean up existing GUI
+local function cleanupExistingGui()
+    local existingGui = playerGui:FindFirstChild("LuckyBlockGui")
+    if existingGui then
+        existingGui:Destroy()
+    end
+end
+
+-- Clean up any existing GUI before creating a new one
+cleanupExistingGui()
+
 -- Create the ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LuckyBlockGui"
